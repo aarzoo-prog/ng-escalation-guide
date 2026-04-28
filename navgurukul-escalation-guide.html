@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NavGurukul — Escalation Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F0E8;
+    --surface: #FDFAF4;
+    --border: #DDD5C5;
+    --text: #1A1610;
+    --muted: #8A7F6E;
+    --accent: #C04A2C;
+    --accent-light: #F5E8E4;
+    --green: #2C6E4A;
+    --green-light: #E4F0E9;
+    --blue: #2B4C8C;
+    --blue-light: #E6EBF5;
+    --user-bg: #2B4C8C;
+    --user-text: #FDFAF4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    max-width: 720px;
+    padding: 32px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .org-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .divider {
+    width: 100%;
+    max-width: 720px;
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0 0;
+  }
+
+  .chat-container {
+    width: 100%;
+    max-width: 720px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px;
+  }
+
+  .messages {
+    flex: 1;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 300px;
+    max-height: 520px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user {
+    flex-direction: row-reverse;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .avatar.bot {
+    background: var(--accent);
+    color: white;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+
+  .avatar.user {
+    background: var(--blue);
+    color: white;
+  }
+
+  .bubble {
+    max-width: 82%;
+    padding: 13px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .message.bot .bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .message.user .bubble {
+    background: var(--user-bg);
+    color: var(--user-text);
+    border-top-right-radius: 4px;
+  }
+
+  .bubble strong {
+    font-weight: 500;
+  }
+
+  .bubble .level-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .level-tag.urgent { background: #FEE2E2; color: #991B1B; }
+  .level-tag.normal { background: var(--blue-light); color: var(--blue); }
+  .level-tag.pnc { background: var(--green-light); color: var(--green); }
+
+  .contact-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .contact-card .name { font-weight: 500; color: var(--text); }
+  .contact-card .role { color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .contact-card .email { color: var(--accent); font-size: 12px; margin-top: 4px; }
+
+  .typing {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    opacity: 0.7;
+  }
+
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 13px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+  }
+
+  .typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  .input-area {
+    padding: 16px 0 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  textarea {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 15px;
+    resize: none;
+    outline: none;
+    min-height: 44px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+
+  textarea::placeholder { color: var(--muted); }
+  textarea:focus { border-color: var(--blue); }
+
+  button#send {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button#send:hover { background: #A83C22; }
+  button#send:active { transform: scale(0.96); }
+  button#send:disabled { background: var(--border); cursor: default; }
+
+  button#send svg { width: 18px; height: 18px; fill: white; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chip:hover {
+    background: var(--blue-light);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="org-label">NavGurukul</div>
+  <h1>Escalation Guide</h1>
+  <p class="subtitle">Describe what's going on — I'll help you figure out who to reach out to.</p>
+</header>
+<div class="divider"></div>
+
+<div class="chat-container">
+  <div class="messages" id="messages"></div>
+  <div class="input-area">
+    <textarea id="input" rows="1" placeholder="Describe your concern…"></textarea>
+    <button id="send">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are an escalation guide for NavGurukul employees. When someone describes a concern, help them figure out who to reach out to and how — clearly, warmly, and without jargon.
+
+ESCALATION LEVELS
+
+- Level 1 – Team Resolution: Talk directly to the peer or person involved. Try within 3–5 working days. Not a formal escalation — just a healthy first step.
+- Level 2 – Direct Manager: Raise it in a 1:1 or scheduled catch-up. Acknowledge: 2 days. Resolve: 7 working days from acknowledgement. Copy PnC if behavioral.
+- Level 3 – Skip Manager: If unresolved, or if your manager is the subject. Go async first (email/Slack). Acknowledge: 2 days. Resolve: 10 working days. Copy PnC on behavioral/cultural issues.
+- Level 4 – People & Culture (PnC): For behavioral, interpersonal, cultural, or sensitive concerns. Email: people@navgurukul.org. Acknowledge: 1 day. Resolve: 7 days. Confidential.
+- Level 5 – CEO/Directors: Final escalation. Email only to Abhishek Gupta: abhishek@navgurukul.org. Include prior steps taken.
+
+FAST-TRACK — bypass all levels, act immediately:
+- Safety risk or physical threat → PnC + Student Safety Committee (people@navgurukul.org)
+- Sexual harassment or abuse → ICC + PnC (people@navgurukul.org)
+- Severe emotional distress → PnC directly
+
+CONCERN TYPES:
+- Work & Operations (blocked work, unclear ownership, resources): Level 1–2
+- Behavioral & Interpersonal (rude conduct, micromanagement, hostility): Level 2, copy PnC
+- Conflict & Team Dynamics (team friction, inter-team disputes): Level 2–3, PnC as mediator
+- Safety, Harassment, Abuse: Fast-track immediately
+- Policy & Ethics (violations, bias, favoritism): PnC primary, CEO if unresolved
+- Concern involves your manager: Skip Level 2, go to Level 3 and/or PnC directly
+
+ORG DIRECTORY
+
+PnC (People & Culture)
+Aayushi Bhansali — Specialist — aayushi.b@navgurukul.org — reports to Ashwini M
+Ashwini Mathpati — Sr. Associate — ashwini.m@navgurukul.org — reports to Aayushi
+Neha Pandit — Associate — neha.p@navgurukul.org — reports to Ashwini M
+Priyanka Sinha — Associate — priyankasinha@navgurukul.org — reports to Aayushi
+Shreya Mishra — Intern — shreyamishra@navgurukul.org — reports to Aayushi
+Vishakha Gudade — Intern — vishakha@navgurukul.org — reports to Ashwini M
+Praveen Kumar Lingam — Intern — praveenlingam@navgurukul.org — reports to Aayushi
+
+CEO Office & Leadership
+Abhishek Gupta — CEO — abhishek@navgurukul.org
+Balakrishnan Chettythody — Director — balakrishnan@navgurukul.org — reports to Abhishek G
+Nitin S — Sr. Manager / Operations — nitin.s@navgurukul.org — reports to Abhishek
+Sagar Deshpande — Manager — sagar@navgurukul.org — reports to Nitin
+Jennifer Padathukatil — Manager — jennifer@navgurukul.org — reports to Nitin S
+Siddhi — Sr. Associate — siddhi@navgurukul.org — reports to Abhishek Gupta
+
+Curriculum
+Neelam Choudhary — Manager — neelam.c@navgurukul.org — reports to Abhishek G
+Ishwar Prasad Acharya — Lead — ishwar@navgurukul.org — reports to Neelam
+Anzum Praveen — Curriculum Designer — anzum@navgurukul.org — reports to Neelam
+Prerna Sharma — Associate — prernasharma@navgurukul.org — reports to Neelam
+Shreshta — Associate — shreshta@navgurukul.org — reports to Neelam
+Deepalochani Karthik — Associate — deepa@navgurukul.org — reports to Neelam
+Sheetal Kalra — Manager — sheetalkalra@navgurukul.org — reports to Abhishek G
+
+Admissions
+Swara Pandya — Lead — swara@navgurukul.org — reports to Abhishek Gupta
+Shivani Suji — Manager — shivanisuji@navgurukul.org — reports to Swara
+Sugatha Balagopalan — Manager — sugatha@navgurukul.org — reports to Swara
+Pihu Gupta — Sr. Associate — pihu@navgurukul.org — reports to Shivani Suji
+Santosh Maurya — Sr. Associate — santosh@navgurukul.org — reports to Swara
+Awrul Saigonda — Sr. Associate — awrul@navgurukul.org — reports to Shivani Suji
+Ramashish Chauhan — Associate — ramashish@navgurukul.org — reports to Shivani Suji
+Nandita Surwar — Associate — nandita@navgurukul.org — reports to Shivani Suji
+Khaja Baig — Associate — khaja@navgurukul.org — reports to Shivani Suji
+Anjali Tayde — Associate — anjalitayde@navgurukul.org — reports to Sugatha
+
+Facilitators / Residential Program
+Priyanka Dangwal — Manager (Res Program Support) — priyanka@navgurukul.org — reports to Abhishek Gupta
+Abdul Mubin Khan — Sr. Manager — mubin@navgurukul.org — reports to Abhishek G
+Neha Bansal — Manager (Res Life Skills) — nehabansal@navgurukul.org — reports to Abhishek G
+Nidhi Vasant Anarkat — Director (Raigarh) — anarkat@navgurukul.org — reports to Abhishek G
+Nilam Kumari — Lead — nilam@navgurukul.org — reports to Priyanka
+Sakshi Gangwar — Scrum Leader (Jashpur, Res Life Skills) — Sakshi.g@navgurukul.org — reports to Mubin
+Bilqees Jan — Scrum Leader (Res Life Skills, campus) — bilqees@navgurukul.org — reports to Priyanka
+Sheikh Mzhar — Scrum Leader (Dantewada, Res Life Skills) — sheikh@navgurukul.org — reports to Bilqees
+Meenakshi Dilip Parihar — Scrum Leader (Himachal, Res Academics) — meenakshi.dilip@navgurukul.org — reports to Mubin
+Pooja Palkandwar — Scrum Leader (Raighar, Res Academics) — pooja.p@navgurukul.org — reports to Priyanka
+Dewangana Deshmukh — Academic Team Lead (Sarjapur) — dewangana@navgurukul.org — reports to Priyanka
+Hungyo Themshingla — Sr. Associate (Dantewada, SOB) — themshingla@navgurukul.org — reports to Priyanka
+Tanuja Khose — Associate (Res Academics) — tanuja@navgurukul.org — reports to Priyanka
+Nigmanand Das — Associate (Kishanganj) — nigmanand@navgurukul.org — reports to Priyanka/Prachi
+Rishav Tiwari — Associate (Jashpur) — rishav@navgurukul.org — reports to Mubin
+Sachin Gote — Associate (Dharmshala) — sachingote@navgurukul.org — reports to Mubin
+Rahul Gangwar — Associate (Dantewada) — rahul.g@navgurukul.org — reports to Sheikh
+Swati Kapgate — Associate (Dantewada) — swati_vinod@navgurukul.org — reports to Sheikh
+Khushboo Kumari — Associate (Kishanganj) — khushboo.kumari@navgurukul.org — reports to Priyanka
+Nisha Chouhan — Associate (Sarjapur) — nishachouhan@navgurukul.org — reports to Bilqees
+Meenakshi Gupta — Associate (Pune) — meenakshigupta@navgurukul.org — reports to Priyanka
+Ashwini Yadav — Associate (Himachal) — ashwini.y@navgurukul.org — reports to Meenakshi D
+Raman Sukla — Associate (Raighar) — raman.p@navgurukul.org — reports to Pooja P
+Pratiksha Shapane — Associate (Himachal) — pratiksha@navgurukul.org — reports to Meenakshi D
+Abhishek Mishra — Associate (Himachal) — abhishek.m@navgurukul.org — reports to Meenakshi D
+Rinki Nisha — Associate (Pune) — rinki@navgurukul.org — reports to Meenakshi D
+Akash Chouhan — Associate (Kishanganj) — akashchouhan@navgurukul.org — reports to Priyanka
+Divya Sonla — Associate (Pune) — divyasonla@navgurukul.org — reports to Priyanka
+Sehajpreet Kaur — Associate (Jashpur) — sehajbhatia@navgurukul.org — reports to Sakshi
+Karuna Lakra — Associate (Himachal, Life Skills) — karuna@navgurukul.org — reports to Meenakshi D
+Samiksha Neware — Associate (Raighar, Life Skills) — samiksha.n@navgurukul.org — reports to Pooja P
+Muktai Indrakshi — Associate (Pune, Life Skills) — muktai@navgurukul.org — reports to Priyanka
+Ritwik Chakravarty — Manager (Remote, Life Skills) — ritwik.c@navgurukul.org — reports to Aakriti
+Aakriti Pasricha — Consultant (Remote, Life Skills) — aakriti@navgurukul.org — reports to Prachi
+
+Operations / Res Operations
+Pooja Rani — Jr. Associate — p.rani@navgurukul.org — reports to Sheikh
+Anindita Ghosh — Jr. Associate (Sarjapur) — anindita@navgurukul.org — reports to Bilqees
+Sellamma — Associate (Sarjapur) — sellemma@navgurukul.org — reports to Bilqees
+Keerti Patidar — Apprentice (Sarjapur) — keerti@navgurukul.org — reports to Bilqees
+Rani Kharate — Apprentice (Pune) — rani.k@navgurukul.org — reports to Priyanka
+Bhavna Deshmukh — Apprentice (Raighar) — bhavna.d@navgurukul.org — reports to Pooja P
+Anjani Kumar — Intern (Sarjapur) — anjani.k@navgurukul.org — reports to Mubin
+Niteen Pandey — Jr. Associate — nitin.p@navgurukul.org — reports to Sheikh
+
+Campus Support Staff
+Saidappa — Associate (Sarjapur) — saidappa@navgurukul.org — reports to Bilqees
+Savita Kamble — Associate (Pune) — savitakambale@navgurukul.org — reports to Priyanka
+Sangita Lavate — Associate (Pune) — sangita@navgurukul.org — reports to Priyanka
+
+Placements / Last Mile Support
+Sumati Bagharatta — Lead — sumati@navgurukul.org — reports to Abhishek G
+Manish Hada — Lead (Res Placements) — manish@navgurukul.org — reports to Abhishek G
+Shweta Sharma — Manager (Last Mile Support) — shweta@navgurukul.org — reports to Sumati
+Anandhi Sundara Raman — Manager (Res Placements) — anandhi@navgurukul.org — reports to Manish
+Ritika Saha — Manager (Res Placements) — ritika.s@navgurukul.org — reports to Manish
+Soumik Chatterjee — Manager (Res Placements) — soumik@navgurukul.org — reports to Manish
+Shikha Gupta — Associate — shikha.g@navgurukul.org — reports to Sumati
+Vivek Bavdhane — Associate — vivek@navgurukul.org — reports to Sumati
+Bhawna Sharma — Associate (LXD & ETC) — bhawna@navgurukul.org — reports to Tanuja
+
+Tech / AI Labs
+Prachi B Shah — Director — prachi@navgurukul.org — reports to Abhishek G
+Rozeen Hussain — Lead — rozeen@navgurukul.org — reports to Prachi
+Varsha — Sr. Associate — varsharajput@navgurukul.org — reports to Prachi
+Goldy — SDE — goldy@navgurukul.org — reports to Prachi
+Suraj Sahani — SDE — surajsahani@navgurukul.org — reports to Prachi
+Apeksha Hande — Associate — apeksha@navgurukul.org — reports to Prachi
+Tanya Bharara — AI Engineer — tanya@navgurukul.org — reports to Prachi
+Sachin Inamdar — AI Engineer — sachin.i@navgurukul.org — reports to Prachi
+
+Tech and Product
+Amruta Ganesh — Manager — amruta@navgurukul.org — reports to Abhishek G
+
+Communication
+Rachana Singh — Manager — rachana@navgurukul.org — reports to Abhishek G
+Nikita Rawal — Associate — nikita.r@navgurukul.org — reports to Rachana
+
+Finance
+Shrishty Ballabh — Manager — shristy@navgurukul.org — reports to Abhishek G
+Rashi Gaba — Lead — rashi@navgurukul.org — reports to Abhishek Gupta
+Divya Sharma — Sr. Associate — divya.s@samyarth.org — reports to Rashi
+Gouthami D — Associate — gouthami@navgurukul.org — reports to Rashi
+
+Alumni Growth
+Pooja Mahanor — Sr. Associate — pooja@navgurukul.org
+Nilam Kumari — Lead — nilam@navgurukul.org — reports to Priyanka
+Pushpa Kumari — Associate — pushpa@navgurukul.org — reports to Pooja Mahanor
+
+Sama
+Nitesh Sharma — Co-Founder — nitesh@thesama.in — reports to Abhishek Gupta
+Shweta Deshmukh — Sr. Associate (Pune) — shwetadeshmukh@navgurukul.org — reports to Nitesh
+Pradeep Thakur — Sr. Associate (Sarjapur) — pradeepthakur@navgurukul.org — reports to Nitesh
+
+HOW TO RESPOND
+- Be warm and human. People reaching out may already be stressed.
+- Ask at most one clarifying question if you genuinely need more context.
+- Always name a specific person with their email when recommending who to contact.
+- For safety or harassment concerns, skip clarifying questions and give fast-track guidance immediately.
+- If someone mentions their name, team, campus, or function, use the directory to identify their manager and suggest the right next step.
+- Keep responses to 3–5 sentences unless listing contacts.
+- Never be preachy or overly formal.
+- Always remind people that PnC conversations are confidential.
+- If a concern involves their direct manager, tell them to skip Level 2 and go to Level 3 or PnC.`;
+
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+
+let history = [];
+
+const STARTER_CHIPS = [
+  "My manager isn't listening to me",
+  "I'm being treated unfairly",
+  "There's a conflict in my team",
+  "I don't know who to escalate to",
+  "Something happened that made me feel unsafe"
+];
+
+function renderChips() {
+  const div = document.createElement('div');
+  div.className = 'chips';
+  div.id = 'starter-chips';
+  STARTER_CHIPS.forEach(text => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = text;
+    chip.onclick = () => {
+      inputEl.value = text;
+      div.remove();
+      sendMessage();
+    };
+    div.appendChild(chip);
+  });
+  messagesEl.appendChild(div);
+}
+
+function addMessage(role, html) {
+  const msg = document.createElement('div');
+  msg.className = `message ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role}`;
+  avatar.textContent = role === 'bot' ? 'N' : 'Y';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = html;
+
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return msg;
+}
+
+function showTyping() {
+  const msg = document.createElement('div');
+  msg.className = 'typing';
+  msg.id = 'typing';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar bot';
+  avatar.textContent = 'N';
+
+  const dots = document.createElement('div');
+  dots.className = 'typing-dots';
+  dots.innerHTML = '<span></span><span></span><span></span>';
+
+  msg.appendChild(avatar);
+  msg.appendChild(dots);
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function formatResponse(text) {
+  // Bold **text**
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Line breaks
+  text = text.replace(/\n\n/g, '<br><br>');
+  text = text.replace(/\n/g, '<br>');
+  // Email links
+  text = text.replace(/([a-zA-Z0-9._%+-]+@navgurukul\.org)/g, '<a href="mailto:$1" style="color:var(--accent);text-decoration:none;font-weight:500">$1</a>');
+  text = text.replace(/([a-zA-Z0-9._%+-]+@thesama\.in)/g, '<a href="mailto:$1" style="color:var(--accent);text-decoration:none;font-weight:500">$1</a>');
+  text = text.replace(/([a-zA-Z0-9._%+-]+@samyarth\.org)/g, '<a href="mailto:$1" style="color:var(--accent);text-decoration:none;font-weight:500">$1</a>');
+  return text;
+}
+
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  // Remove chips if still present
+  const chips = document.getElementById('starter-chips');
+  if (chips) chips.remove();
+
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  addMessage('user', text);
+  history.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || "Sorry, something went wrong. Please try again.";
+
+    history.push({ role: 'assistant', content: reply });
+
+    removeTyping();
+    addMessage('bot', formatResponse(reply));
+  } catch (err) {
+    removeTyping();
+    addMessage('bot', 'Something went wrong. Please check your connection and try again.');
+  }
+
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+// Auto-resize textarea
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+});
+
+inputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+// Welcome message
+addMessage('bot', "Hi 👋 I'm here to help you figure out the right person to reach out to, depending on what's going on. Tell me what's happening — no need to have it all figured out.");
+renderChips();
+</script>
+</body>
+</html>
